@@ -23,7 +23,7 @@ app.use('/api/contacts', contactRouter);
 
 app.all('*', (req, res) => {
   res.status(404).json({
-    message: "Oops, recource not found"
+    message: "Oops, recource not found..."
   });
 });
 
