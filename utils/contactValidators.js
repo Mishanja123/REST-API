@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-exports.createContactDataValidator = (data) =>
+exports.contactDataValidator = (data) =>
     Joi
         .object()
         .options({ abortEarly: false })
