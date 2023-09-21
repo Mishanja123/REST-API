@@ -39,10 +39,10 @@ exports.deleteContact =  (req, res) => {
 };
 
 exports.updateContact = (req, res) => {
-  // const contacts = req.contacts
+  const contacts = req.contacts
   const updatedContact = req.updatedContact
   
-  // fs.writeFile('contacts.json', JSON.stringify(contacts, null, 2)); 
+  fs.writeFile('contacts.json', JSON.stringify(contacts, null, 2)); 
 
   res.status(200).json(
     updatedContact
