@@ -54,13 +54,22 @@ exports.findIndex = catchAsync(async (req, res, next) => {
 });
 
 exports.createContact = catchAsync(async (req, res, next) => {
-    const {error, value} = contactValidator.createContactDataValidator(req.body);
+    const {error, value} = contactValidator.contactDataValidator(req.body);
 
     if (error) {
-        throw new AppError(404, `Invalid data ${error.message}`);
+        const requiredFields = ['name', 'email', 'phone'];
+
+        for (const field of requiredFields) {
+            if (!value[field]) {
+                throw new AppError(400, `Missing required ${field} field`);
+            }
+        }
+
+        throw new AppError(400, `${error.message}`);
     }
 
     const {name, email, phone} = value;
+
 
     const newContact = {
         id: nanoid(),
@@ -81,27 +90,33 @@ exports.createContact = catchAsync(async (req, res, next) => {
 });
 
 exports.updateContact = catchAsync(async (req, res, next) => {
-    const { name, email, phone } = req.body;
-    const contactToUpdate = req.contactIndex
+    const contactToUpdate = req.contact
 
-    if (!contactToUpdate) {
-        throw new AppError(404, "Contact not found");
+    if (!req.body || Object.keys(req.body).length === 0) {
+        throw new AppError(400, "Missing fields");
     }
 
-    if (contactToUpdate.name === name && contactToUpdate.email === email && contactToUpdate.phone === phone) {
-        throw new AppError(400, "New data is the same as existing data");
+    const {error, value} = contactValidator.contactDataValidator(req.body);
+
+    if (error) {
+        const requiredFields = ['name', 'email', 'phone'];
+
+        for (const field of requiredFields) {
+            if (!value[field]) {
+                throw new AppError(400, `Missing required ${field} field`);
+            }
+        }
+
+        throw new AppError(400, `${error.message}`);
     }
 
-    const contacts = req.contacts
+    const {name, email, phone} = value;
 
-    const updatedContact = { name, email, phone };
+    contactToUpdate.name = name;
+    contactToUpdate.email = email;
+    contactToUpdate.phone = phone;
 
-    contacts[contactToUpdate] = {
-        ...contacts[contactToUpdate],
-        ...updatedContact
-    };
-
-    req.updatedContact = updatedContact
+    req.updatedContact = contactToUpdate
 
     next()
 });
