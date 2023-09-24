@@ -11,14 +11,15 @@ router.use(contactMiddleware.readFile);
 router
     .route('/')
     .get(contactController.getContacts)
-    .post(contactMiddleware.createContact, contactController.createContact);
+    .post(contactMiddleware.checkContactData, contactMiddleware.createContact, contactController.createContact);
 
 router.use('/:id',contactMiddleware.checkContactId);
 router
     .route('/:id')
-    .get(contactController.getContactById)
-    .delete(contactMiddleware.findIndex, contactController.deleteContact)
-    .put(contactMiddleware.findIndex, contactMiddleware.updateContact, contactController.updateContact);
+    .get(contactMiddleware.getContactById, contactController.getContactById)
+    .delete(contactMiddleware.deleteContact, contactController.deleteContact)
+    .put(contactMiddleware.checkContactData, contactMiddleware.updateContact, contactController.updateContact)
+    .patch(contactMiddleware.checkStatusContact, contactMiddleware.updateStatusContact, contactController.updateStatusContact);
 
 
 module.exports = router;

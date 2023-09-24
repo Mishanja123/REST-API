@@ -26,23 +26,22 @@ exports.createContact =  (req, res) => {
 };
 
 exports.deleteContact =  (req, res) => {
-  const contacts = req.contacts
-  const contactIndex = req.contactIndex
-
-  contacts.splice(contactIndex, 1);
-
-  fs.writeFile('contacts.json', JSON.stringify(contacts, null, 2));
 
   res.status(200).json({
     message: "Contact deleted"
-  })
+  });
 };
 
 exports.updateContact = (req, res) => {
-  const contacts = req.contacts
-  const updatedContact = req.updatedContact
+  const updatedContact = req.updatedContact;
   
-  fs.writeFile('contacts.json', JSON.stringify(contacts, null, 2)); 
+  res.status(200).json(
+    updatedContact
+  );
+};
+
+exports.updateStatusContact = (req, res) => {
+  const updatedContact = req.updatedContact;
 
   res.status(200).json(
     updatedContact
