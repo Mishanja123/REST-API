@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
 
 
 dotenv.config({
@@ -14,17 +13,6 @@ const contactRouter = require('./routes/contactRouter');
 const app = express();
 
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
-
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then((con) => {
-    console.log('Database connection successful');
-  })
-  .catch((err) => {
-    console.log(err);
-    process.exit(1);
-  });
-
 
 // MIDDLEWARES
 app.use(express.json());

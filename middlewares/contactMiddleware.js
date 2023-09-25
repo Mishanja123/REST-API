@@ -64,9 +64,11 @@ exports.checkContactData = catchAsync(async (req, res, next) => {
         throw new AppError(400, `${error.message}`);
     }
 
-    const contactExists = await Contact.exists({ phone: value.phone });
+    // const contactExists = await Contact.exists({ phone: value.phone });
 
-    if(contactExists) throw new AppError(409, 'Contact with this phone number already exists');
+    // if(contactExists) throw new AppError(409, 'Contact with this phone number already exists');
+
+    
 
     req.body = value;
     

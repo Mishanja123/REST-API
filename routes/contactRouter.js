@@ -18,7 +18,10 @@ router
     .route('/:id')
     .get(contactMiddleware.getContactById, contactController.getContactById)
     .delete(contactMiddleware.deleteContact, contactController.deleteContact)
-    .put(contactMiddleware.checkContactData, contactMiddleware.updateContact, contactController.updateContact)
+    .put(contactMiddleware.checkContactData, contactMiddleware.updateContact, contactController.updateContact);
+
+router
+    .route('/:id/favorite')
     .patch(contactMiddleware.checkStatusContact, contactMiddleware.updateStatusContact, contactController.updateStatusContact);
 
 

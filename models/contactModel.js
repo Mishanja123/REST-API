@@ -14,7 +14,7 @@ const contactSchema = new Schema ({
       phone: {
         type: String,
         required: [true, 'Set phone number for contact'],
-        unique: [true, 'Duplicated phone number'],
+        unique: false,
       },
       favorite: {
         type: Boolean,
