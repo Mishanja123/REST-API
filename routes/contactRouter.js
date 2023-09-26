@@ -6,23 +6,21 @@ const {contactMiddleware} = require('../middlewares');
 
 const router = Router();
 
-router.use(contactMiddleware.readFile);
-
 router
     .route('/')
     .get(contactController.getContacts)
-    .post(contactMiddleware.checkContactData, contactMiddleware.createContact, contactController.createContact);
+    .post(contactMiddleware.checkCreateContactData, contactController.createContact);
 
 router.use('/:id',contactMiddleware.checkContactId);
 router
     .route('/:id')
-    .get(contactMiddleware.getContactById, contactController.getContactById)
-    .delete(contactMiddleware.deleteContact, contactController.deleteContact)
-    .put(contactMiddleware.checkContactData, contactMiddleware.updateContact, contactController.updateContact);
+    .get(contactController.getContactById)
+    .delete(contactController.deleteContactById)
+    .put(contactMiddleware.checkUpdateContactData, contactController.updateContactById);
 
 router
     .route('/:id/favorite')
-    .patch(contactMiddleware.checkStatusContact, contactMiddleware.updateStatusContact, contactController.updateStatusContact);
+    .patch(contactMiddleware.checkStatusContact, contactController.updateStatusContactById);
 
 
 module.exports = router;

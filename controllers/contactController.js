@@ -1,49 +1,50 @@
-const fs = require('fs').promises;
+const { getContacts, getContact, createContact, updateContact, deleteContact, updateStatusContact } = require('../services/contactService');
+const { catchAsync } = require('../utils');
 
+exports.getContacts = catchAsync(async (req, res) => {
+  const contacts = await getContacts();
 
-exports.getContacts = (req, res) => {
-  const contacts  = req.contacts   
-   
   res.status(200).json(
       contacts
   );
-};
+});
 
-exports.getContactById = (req, res) => {
-  const contact = req.contact;
-  
+exports.getContactById = catchAsync(async (req, res) => {
+  const contact = await getContact(req.params.id)
+
   res.status(200).json(
     contact
   );
-};
+});
 
-exports.createContact =  (req, res) => {
-  const newContact = req.newContact;
+exports.createContact =  catchAsync(async (req, res) => {
+  const newContact = await createContact(req.body);
 
   res.status(201).json(
     newContact
   );
-};
+});
 
-exports.deleteContact =  (req, res) => {
+exports.updateContactById = catchAsync(async (req, res) => {
+  const updatedContact = await updateContact(req.params.id, req.body);
+
+  res.status(200).json(
+    updatedContact
+  );
+});
+
+exports.updateStatusContactById = catchAsync(async (req, res) => {
+  const updatedContact = await updateStatusContact(req.params.id, req.body);
+
+  res.status(200).json(
+    updatedContact
+  );
+});
+
+exports.deleteContactById = catchAsync(async (req, res) => {
+  await deleteContact(req.params.id);
 
   res.status(200).json({
     message: "Contact deleted"
   });
-};
-
-exports.updateContact = (req, res) => {
-  const updatedContact = req.updatedContact;
-  
-  res.status(200).json(
-    updatedContact
-  );
-};
-
-exports.updateStatusContact = (req, res) => {
-  const updatedContact = req.updatedContact;
-
-  res.status(200).json(
-    updatedContact
-  );
-};
+});
