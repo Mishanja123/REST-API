@@ -2,11 +2,15 @@ const { getContacts, getContact, createContact, updateContact, deleteContact, up
 const { catchAsync } = require('../utils');
 
 exports.getContacts = catchAsync(async (req, res) => {
-  const contacts = await getContacts();
+  const { contacts, total, onPage} = await getContacts(req.query, req.user);
 
-  res.status(200).json(
-      contacts
-  );
+
+  res.status(200).json({
+      contacts,
+      onPage,
+      total,
+      owner: req.user,
+  });
 });
 
 exports.getContactById = catchAsync(async (req, res) => {
@@ -18,7 +22,7 @@ exports.getContactById = catchAsync(async (req, res) => {
 });
 
 exports.createContact =  catchAsync(async (req, res) => {
-  const newContact = await createContact(req.body);
+  const newContact = await createContact(req.body, req.user);
 
   res.status(201).json(
     newContact
@@ -48,3 +52,4 @@ exports.deleteContactById = catchAsync(async (req, res) => {
     message: "Contact deleted"
   });
 });
+

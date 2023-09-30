@@ -1,11 +1,16 @@
 const { Router } = require('express');
 
 const {contactController} = require('../controllers');
-const {contactMiddleware} = require('../middlewares');
+const {authMiddleware, contactMiddleware} = require('../middlewares');
+const { userSubEnum } = require('../constants');
 
 
 const router = Router();
 
+
+router.use(authMiddleware.protect);
+
+// router.use(authMiddleware.allowFor(userSubEnum.STARTER, userSubEnum.PRO, userSubEnum.DEFOULT))
 router
     .route('/')
     .get(contactController.getContacts)

@@ -1,5 +1,5 @@
 const { AppError, catchAsync, contactValidator } = require('../utils');
-const { checkContactExistsById, checkBody, checkStatusBody } = require('../services/contactService');
+const { checkContactExistsById, checkBody, checkStatusBody, validatorErrorCheck } = require('../services/contactService');
 
 
 exports.checkContactId = catchAsync(async (req, res, next) => {
@@ -14,12 +14,7 @@ exports.checkCreateContactData = catchAsync(async (req, res, next) => {
     const {error, value} = contactValidator.createContactDataValidator(req.body);
 
     if (error) {
-        const requiredFields = ['name', 'email', 'phone'];
-        for (const field of requiredFields) {
-            if (!value[field]) throw new AppError(400, `Missing required ${field} field`);
-        }
-
-        throw new AppError(400, `${error.message}`);
+        validatorErrorCheck(value, error);
     }
 
     req.body = value;
