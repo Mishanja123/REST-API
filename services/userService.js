@@ -1,19 +1,22 @@
 const { Types } = require('mongoose');
 
 const User = require('../models/userModel');
-const { AppError } = require('../utils');
+const { AppError, catchAsync } = require('../utils');
 const { regToken } = require('./jwtService');
 
 
 exports.createUser = async (userData) => {
-    const newUser = await User.create(userData)
+    const newUser = await User.create(userData);
 
     newUser.password = undefined;
-
+    
     const token = regToken(newUser._id);
 
-    return { user: newUser};
+    const {email, subscription} = newUser
+    
+    return { user: {email, subscription}};
 };
+
 
 exports.loginUser = async (userData) => {    
     const user = await User.findOne({ email: userData.email}).select('+password');
@@ -23,17 +26,17 @@ exports.loginUser = async (userData) => {
     const passwordIsValid = await user.checkPassword(userData.password, user.password);
 
     if (!passwordIsValid) throw new AppError(401, 'Email or password is wrong');
-
+    
     user.password = undefined;
 
     const token = regToken(user.id);
 
-    return {user: user, token};
+    return {user, token};
 };
 
 exports.logoutUser = (token) => {
-};
 
+};
 
 exports.getUser = (id) => User.findById(id);
 

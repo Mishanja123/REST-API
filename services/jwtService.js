@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
  
 const { AppError } = require('../utils');
 
+const blacklist = new Set();
+
 exports.regToken = (id) => 
     jwt.sign(
         { id }, 
@@ -10,7 +12,8 @@ exports.regToken = (id) =>
     );
 
 exports.checkToken = (token) => {
-    if (!token) throw new AppError(401, 'Not authorized');
+    if (!token|| blacklist.has(token)) throw new AppError(401, 'Not authorized');
+
     try {
         const { id } = jwt.verify(token, process.env.JWT_SECRET);
         
@@ -22,3 +25,4 @@ exports.checkToken = (token) => {
       }
 }
 
+exports.addToBlacklist = (token) => blacklist.add(token); 
