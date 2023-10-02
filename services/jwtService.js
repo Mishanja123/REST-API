@@ -25,4 +25,6 @@ exports.checkToken = (token) => {
       }
 }
 
-exports.addToBlacklist = (token) => blacklist.add(token); 
+exports.addToBlacklist = (token) => {
+    blacklist.add(token); 
+}

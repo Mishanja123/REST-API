@@ -18,8 +18,10 @@ exports.login = catchAsync(async (req, res) => {
 
     res.status(200).json({
         token,
-        email,
-        subscription
+        user: {
+          email,
+          subscription
+        }
     })
 });
 
@@ -27,7 +29,6 @@ exports.logout = catchAsync(async (req, res) => {
   const token = req.headers.authorization?.startsWith('Bearer') && req.headers.authorization.split(' ')[1];
   
 addToBlacklist(token)
-// console.log(token)
   
   res.status(204).send();
 });
