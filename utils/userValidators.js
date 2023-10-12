@@ -31,3 +31,12 @@ exports.updateSubscriptionValidator = (data) =>
             subscription: Joi.string().valid(...Object.values(userSubEnum))
         })
         .validate(data);
+
+exports.updateAvatarValidator = (data) => 
+    Joi 
+        .object()
+        .options({ abortEarly: false })
+        .keys({
+            avatar: Joi.string()
+        })
+        .validate(data);

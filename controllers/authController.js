@@ -1,5 +1,5 @@
 const { catchAsync, AppError } = require('../utils');
-const { createUser, loginUser, logoutUser, updateSubscription } = require('../services/userService');
+const { createUser, loginUser, updateSubscription, updateAvatar } = require('../services/userService');
 const {addToBlacklist} = require('../services/jwtService')
 
 const User = require('../models/userModel');
@@ -49,5 +49,14 @@ exports.updateSubscription = catchAsync(async (req, res) => {
   res.status(200).json(
     updatedUser
   );
+});
+
+exports.updateAvatar = catchAsync(async (req, res) => {
+  const updatedUser = await updateAvatar(req.user, req.body, req.file);
+  const {avatarURL} = updatedUser;
+  
+  res.status(200).json({
+    avatarURL
+  });
 });
   

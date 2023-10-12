@@ -18,7 +18,6 @@ exports.checkToken = (token) => {
         const { id } = jwt.verify(token, process.env.JWT_SECRET);
         
         return id;
-
     } catch (err) {
         console.log(err)
         throw new AppError(401, 'Not authorized');

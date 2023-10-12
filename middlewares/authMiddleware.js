@@ -1,7 +1,10 @@
+const multer = require('multer');
+const uuid = require('uuid').v4;
 const { AppError, catchAsync, userValidator,  } = require("../utils");
 const { validatorError, checkUserExistsByEmail, getUser } = require('../services/userService');
-const { checkBody, checkSubscriptionBody } = require("../services/contactService");
+const { checkBody } = require("../services/contactService");
 const { checkToken } = require("../services/jwtService");
+const ImageService = require('../services/imageService');
 
 
 
@@ -59,9 +62,35 @@ exports.checkSubscription = catchAsync(async (req, res, next) => {
     next();
 });
 
-// exports.allowFor = (...subscriptions) =>
-//     (req, res, next) => {
-//         if (subscriptions.includes(req.user.subscription)) return next();
+exports.checkAvatar = catchAsync(async (req, res, next) => {
+    checkBody(req.body);
 
-//         next(new AppError(403, 'Login for use'))
+    const {error, value} = userValidator.updateAvatarValidator(req.body);
+
+    if (error) throw new AppError(400, `${error.message}`);
+
+    req.body = value;
+});
+
+// const multerStorage = multer.diskStorage({
+//     destination: (req, file , cbk) => {
+//         cbk(null, 'tmp');
+//     },
+//     filename: (req, file, cbk) => {
+//         const extension = file.mimetype.split('/')[1];
+
+//         cbk(null, `${req.user.id}-${uuid()}.${extension }`);
+//     },
+// });
+
+
+
+// exports.uploadUserAvatar = multer({
+//     storage: multerStorage,
+//     fileFilter: multerFilter,
+//     limits: {
+//         fileSize: 2 * 1024 * 1024
 //     }
+// }).single('avatar');
+
+exports.uploadUserAvatar = ImageService.initUploadMiddleware('avatar');

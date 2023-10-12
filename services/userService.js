@@ -3,6 +3,7 @@ const { Types } = require('mongoose');
 const User = require('../models/userModel');
 const { AppError, catchAsync } = require('../utils');
 const { regToken } = require('./jwtService');
+const ImageService = require('./imageService');
 
 
 exports.createUser = async (userData) => {
@@ -34,17 +35,36 @@ exports.loginUser = async (userData) => {
     return {user, token};
 };
 
-exports.logoutUser = (token) => {
-
-};
 
 exports.getUser = (id) => User.findById(id);
 
-exports.updateSubscription = async (user, updatedDate) => {
-    const updatedUser = await User.findByIdAndUpdate(user._id, updatedDate, {new: true}).select('-password')
+exports.updateSubscription = async (user, updatedData) => {
+    const updatedUser = await User.findByIdAndUpdate(user._id, updatedData, {new: true}).select('-password')
 
     return updatedUser;
 };
+
+
+
+
+
+exports.updateAvatar = async (user, updatedData, file) => {
+
+    if (file) {
+        user.avatarURL = await ImageService.save(file, user.id, 'avatars');        
+    }
+
+    Object.keys(updatedData).forEach((key) => {
+        user[key] = updatedData[key];
+    });
+
+    return user.save();
+};
+
+
+
+
+
 
 exports.validatorError = (value, error) => {
     const requiredFields = ['email', 'password'];

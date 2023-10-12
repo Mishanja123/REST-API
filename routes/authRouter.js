@@ -11,7 +11,8 @@ router.post('/login', authMiddleware.checkLoginUserData, authController.login);
 
 router.use(authMiddleware.protect)
     router.post('/logout', authController.logout);
-    router.get('/current', authMiddleware.protect, authController.getMe);
-    router.patch('/', authMiddleware.protect, authMiddleware.checkSubscription, authController.updateSubscription);
+    router.get('/current', authController.getMe);
+    router.patch('/', authMiddleware.checkSubscription, authController.updateSubscription);
+    router.patch('/avatars', authMiddleware.uploadUserAvatar, authController.updateAvatar);
 
 module.exports = router;
