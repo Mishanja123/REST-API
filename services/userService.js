@@ -50,9 +50,9 @@ exports.updateSubscription = async (user, updatedData) => {
 
 exports.updateAvatar = async (user, updatedData, file) => {
 
-    if (file) {
-        user.avatarURL = await ImageService.save(file, user.id, 'avatars');        
-    }
+    if (!file) throw new AppError(400, 'No file added');
+
+    user.avatarURL = await ImageService.save(file, user.id, 'avatars');        
 
     Object.keys(updatedData).forEach((key) => {
         user[key] = updatedData[key];
