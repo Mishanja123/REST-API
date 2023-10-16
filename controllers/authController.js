@@ -52,7 +52,7 @@ exports.updateSubscription = catchAsync(async (req, res) => {
 });
 
 exports.updateAvatar = catchAsync(async (req, res) => {
-  const updatedUser = await updateAvatar(req.user, req.body, req.file);
+  const updatedUser = await updateAvatar(req.user, req.file);
   const {avatarURL} = updatedUser;
   
   res.status(200).json({

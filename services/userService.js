@@ -1,9 +1,12 @@
-const { Types } = require('mongoose');
+const Jimp = require('jimp');
+const path = require('path');
+const uuid = require('uuid').v4;
+const fse = require('fs-extra');
 
 const User = require('../models/userModel');
 const { AppError, catchAsync } = require('../utils');
 const { regToken } = require('./jwtService');
-const ImageService = require('./imageService');
+const {findUserAvatarFile} = require('../services/imageService')
 
 
 exports.createUser = async (userData) => {
@@ -46,22 +49,29 @@ exports.updateSubscription = async (user, updatedData) => {
 
 
 
-
-
-exports.updateAvatar = async (user, updatedData, file) => {
+exports.updateAvatar = async (user, file) => {
 
     if (!file) throw new AppError(400, 'No file added');
 
-    user.avatarURL = await ImageService.save(file, user.id, 'avatars');        
+    const userAvatarFilePath = await findUserAvatarFile(user.id);
 
-    Object.keys(updatedData).forEach((key) => {
-        user[key] = updatedData[key];
-    });
+    if (userAvatarFilePath) {
+        const fullAvatarPath = path.join(process.cwd(), 'public', 'avatars', `${user.id}-${uuid()}.jpeg`);
 
-    return user.save();
+        await fse.copy(userAvatarFilePath, fullAvatarPath);
+
+        const image = await Jimp.read(fullAvatarPath);
+        await image.resize(250, 250).quality(90).write(fullAvatarPath);
+
+        user.avatarURL = path.join('avatars', path.basename(fullAvatarPath));
+
+        await user.save();
+
+        return user;
+    } else {
+        throw new AppError(404, 'User avatar file not found');
+    }
 };
-
-
 
 
 
