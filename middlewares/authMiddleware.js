@@ -2,12 +2,7 @@ const { AppError, catchAsync, userValidator,  } = require("../utils");
 const { validatorError, checkUserExistsByEmail, getUser } = require('../services/userService');
 const { checkBody } = require("../services/contactService");
 const { checkToken } = require("../services/jwtService");
-// const ImageService = require('../services/imageService');
-
-const multer = require('multer');
-
-
-
+const ImageService = require('../services/imageService');
 
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -73,31 +68,4 @@ exports.checkAvatar = catchAsync(async (req, res, next) => {
     req.body = value;
 });
 
-const multerStorage = multer.diskStorage({
-    destination: (req, file , cbk) => {
-        cbk(null, 'tmp');
-    },
-    filename: (req, file, cbk) => {
-        const extension = file.mimetype.split('/')[1];
-
-        cbk(null, `${req.user.id}-${file.originalname.split('.')[0]}.${extension}`);
-    },
-});
-
-const multerFilter = (req, file, cbk) => {
-    if (file.mimetype.startsWith('image/')) {
-        cbk(null, true);
-    } else {
-            cbk(new AppError(401, 'Not authorized'), false);
-        }
-};
-
-
-
-exports.uploadUserAvatar = multer({
-    storage: multerStorage,
-    fileFilter: multerFilter,
-    limits: {
-        fileSize: 2 * 1024 * 1024
-    }
-}).single('avatar');
+exports.uploadUserAvatar = ImageService.initUploadMiddleware('avatar');

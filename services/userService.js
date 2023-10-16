@@ -6,7 +6,9 @@ const fse = require('fs-extra');
 const User = require('../models/userModel');
 const { AppError, catchAsync } = require('../utils');
 const { regToken } = require('./jwtService');
-const {findUserAvatarFile} = require('../services/imageService')
+// const {findUserAvatarFile} = require('../services/imageService')
+const ImageService = require('../services/imageService');
+
 
 
 exports.createUser = async (userData) => {
@@ -53,7 +55,7 @@ exports.updateAvatar = async (user, file) => {
 
     if (!file) throw new AppError(400, 'No file added');
 
-    const userAvatarFilePath = await findUserAvatarFile(user.id);
+    const userAvatarFilePath = await ImageService.findUserAvatarFile(user.id);
 
     if (userAvatarFilePath) {
         const fullAvatarPath = path.join(process.cwd(), 'public', 'avatars', `${user.id}-${uuid()}.jpeg`);
