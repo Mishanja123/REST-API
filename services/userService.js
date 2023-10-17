@@ -6,7 +6,6 @@ const fse = require('fs-extra');
 const User = require('../models/userModel');
 const { AppError, catchAsync } = require('../utils');
 const { regToken } = require('./jwtService');
-// const {findUserAvatarFile} = require('../services/imageService')
 const ImageService = require('../services/imageService');
 
 
@@ -60,7 +59,7 @@ exports.updateAvatar = async (user, file) => {
     if (userAvatarFilePath) {
         const fullAvatarPath = path.join(process.cwd(), 'public', 'avatars', `${user.id}-${uuid()}.jpeg`);
 
-        await fse.copy(userAvatarFilePath, fullAvatarPath);
+        await fse.move(userAvatarFilePath, fullAvatarPath);
 
         const image = await Jimp.read(fullAvatarPath);
         await image.resize(250, 250).quality(90).write(fullAvatarPath);
