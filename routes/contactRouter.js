@@ -1,24 +1,31 @@
 const { Router } = require('express');
 
 const {contactController} = require('../controllers');
-const {contactMiddleware} = require('../middlewares');
+const {authMiddleware, contactMiddleware} = require('../middlewares');
+const { userSubEnum } = require('../constants');
 
 
 const router = Router();
 
-router.use(contactMiddleware.readFile);
 
+router.use(authMiddleware.protect);
+
+// router.use(authMiddleware.allowFor(userSubEnum.STARTER, userSubEnum.PRO, userSubEnum.DEFOULT))
 router
     .route('/')
     .get(contactController.getContacts)
-    .post(contactMiddleware.createContact, contactController.createContact);
+    .post(contactMiddleware.checkCreateContactData, contactController.createContact);
 
 router.use('/:id',contactMiddleware.checkContactId);
 router
     .route('/:id')
     .get(contactController.getContactById)
-    .delete(contactMiddleware.findIndex, contactController.deleteContact)
-    .put(contactMiddleware.findIndex, contactMiddleware.updateContact, contactController.updateContact);
+    .delete(contactController.deleteContactById)
+    .put(contactMiddleware.checkUpdateContactData, contactController.updateContactById);
+
+router
+    .route('/:id/favorite')
+    .patch(contactMiddleware.checkStatusContact, contactController.updateStatusContactById);
 
 
 module.exports = router;

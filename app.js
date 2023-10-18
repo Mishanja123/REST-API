@@ -8,6 +8,7 @@ dotenv.config({
   path: process.env.NODE_ENV === 'production' ? './environments/production.env' : './environments/development.env',
 });
 
+const authRouter = require('./routes/authRouter');
 const contactRouter = require('./routes/contactRouter');
 
 const app = express();
@@ -17,8 +18,10 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 // MIDDLEWARES
 app.use(express.json());
 app.use(cors());
+app.use(express.static('public'));
 
 // ROUTES
+app.use('/users', authRouter);
 app.use('/api/contacts', contactRouter);
 
 app.all('*', (req, res) => {

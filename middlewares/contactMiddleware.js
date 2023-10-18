@@ -1,122 +1,47 @@
-const fs = require('fs').promises;
-const { nanoid } = require('nanoid');
-
 const { AppError, catchAsync, contactValidator } = require('../utils');
+const { checkContactExistsById, checkBody, checkStatusBody, validatorErrorCheck } = require('../services/contactService');
 
-exports.readFile = catchAsync(async (req, res, next) => {
-    const contactsDB = await fs.readFile('contacts.json');
-    
-    const contacts = JSON.parse(contactsDB); 
-
-    if(!contacts) {
-        throw new AppError(404, "Not found");
-    }
-    
-    req.contacts = contacts;
-    
-    next();
-});
 
 exports.checkContactId = catchAsync(async (req, res, next) => {
-    const { id } = req.params;
+    await checkContactExistsById(req.params.id);
 
-    if(id.length < 21){
-        throw new AppError(400, "Invalid ID")
-    }
-
-    const contacts = req.contacts
-       
-    const contact = contacts.find((contact) => contact.id === id);
-  
-    if(!contact) {
-        throw new AppError(404, "Not found");
-    }
-  
-    req.contact = contact;
-  
     next();
 });
 
-exports.findIndex = catchAsync(async (req, res, next) => {
-    const contacts = req.contacts
-    
-    const contact = req.contact;
-    
-    const contactIndex = contacts.findIndex(item => item.id === contact.id);
-    
-    if (contactIndex === -1) {
-        throw new AppError(404, "Not found");
-    }
+exports.checkCreateContactData = catchAsync(async (req, res, next) => {
+    checkBody(req.body);
 
-    req.contactIndex = contactIndex;
-            
-    next();
-});
-
-exports.createContact = catchAsync(async (req, res, next) => {
-    const {error, value} = contactValidator.contactDataValidator(req.body);
+    const {error, value} = contactValidator.createContactDataValidator(req.body);
 
     if (error) {
-        const requiredFields = ['name', 'email', 'phone'];
-
-        for (const field of requiredFields) {
-            if (!value[field]) {
-                throw new AppError(400, `Missing required ${field} field`);
-            }
-        }
-
-        throw new AppError(400, `${error.message}`);
+        validatorErrorCheck(value, error);
     }
 
-    const {name, email, phone} = value;
-
-
-    const newContact = {
-        id: nanoid(),
-        name,
-        email,
-        phone
-    };
-
-    const contacts = req.contacts
-
-    contacts.push(newContact);
+    req.body = value;
     
-    await fs.writeFile('contacts.json',  JSON.stringify(contacts));
-    
-    req.newContact = newContact;
-        
     next();
 });
 
-exports.updateContact = catchAsync(async (req, res, next) => {
-    const contactToUpdate = req.contact
+exports.checkUpdateContactData = catchAsync(async (req, res, next) => {
+    checkBody(req.body);
 
-    if (!req.body || Object.keys(req.body).length === 0) {
-        throw new AppError(400, "Missing fields");
-    }
+    const {error, value} = contactValidator.updateContactDataValidator(req.body);
 
-    const {error, value} = contactValidator.contactDataValidator(req.body);
+    if (error) throw new AppError(400, `${error.message}`);
 
-    if (error) {
-        const requiredFields = ['name', 'email', 'phone'];
+    req.body = value;
 
-        for (const field of requiredFields) {
-            if (!value[field]) {
-                throw new AppError(400, `Missing required ${field} field`);
-            }
-        }
+    next();
+});
 
-        throw new AppError(400, `${error.message}`);
-    }
+exports.checkStatusContact = catchAsync(async (req, res, next) => {
+    checkStatusBody(req.body);
 
-    const {name, email, phone} = value;
+    const {error, value} = contactValidator.updateStatusContactValidator(req.body);
 
-    contactToUpdate.name = name;
-    contactToUpdate.email = email;
-    contactToUpdate.phone = phone;
+    if (error) throw new AppError(400, `${error.message}`);
 
-    req.updatedContact = contactToUpdate
+    req.body = value;
 
-    next()
+    next();
 });
