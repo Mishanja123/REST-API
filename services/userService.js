@@ -2,11 +2,32 @@ const Jimp = require('jimp');
 const path = require('path');
 const uuid = require('uuid').v4;
 const fse = require('fs-extra');
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({username: 'api', key: process.env.MAILGUN_API_KEY || 'key-yourkeyhere'});
 
 const User = require('../models/userModel');
-const { AppError, catchAsync } = require('../utils');
+const { AppError } = require('../utils');
 const { regToken } = require('./jwtService');
 const ImageService = require('../services/imageService');
+
+
+
+
+
+const sendVerificationEmail = (email, verificationToken) => {
+    mg.messages.create('sandbox89cf6ec81e87487bb750084e6226849a.mailgun.org', {
+        from: "Excited User <mailgun@sandbox-123.mailgun.org>",
+        to: ['shevchenkom606@gmail.com'],
+        //to: [email]
+        subject: "Hello",
+        text: `Testing some Mailgun awesomeness!`,
+        html: `<h1>Veify your email(just put the text below this text to input in postman)</h1><p>/users/verify/${verificationToken}</p>`
+    })
+    .then(msg => console.log(msg))
+    .catch(err => console.log(err));
+  };
 
 
 
@@ -17,11 +38,44 @@ exports.createUser = async (userData) => {
     
     const token = regToken(newUser._id);
 
-    const {email, subscription} = newUser
+    const {email, subscription, verificationToken} = newUser
     
+    await sendVerificationEmail(email, verificationToken)
+
     return { user: {email, subscription}};
 };
 
+
+
+
+exports.verifyUser = async (verificationToken) => {
+    const user = await User.findOne({ verificationToken });
+
+
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+  
+    user.verificationToken = null;
+    user.verify = true;
+    await user.save();
+
+}
+
+exports.secondVerify = async (email) => {
+    
+      const user = await User.findOne({ email });
+    
+      if (!user) throw new AppError(404, 'User not found')
+    
+      if (user.verify) throw new AppError(400, 'Verification has already been passed')
+    
+      if (!user.verificationToken) throw new AppError(400, 'No verification token found')
+    
+      const verificationToken = user.verificationToken;
+      await sendVerificationEmail(user.email, verificationToken);
+    
+}
 
 exports.loginUser = async (userData) => {    
     const user = await User.findOne({ email: userData.email}).select('+password');

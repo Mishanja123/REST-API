@@ -3,6 +3,7 @@ const { validatorError, checkUserExistsByEmail, getUser } = require('../services
 const { checkBody } = require("../services/contactService");
 const { checkToken } = require("../services/jwtService");
 const ImageService = require('../services/imageService');
+const User = require("../models/userModel");
 
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -37,11 +38,20 @@ exports.checkRegisterUserData = catchAsync(async (req, res, next) => {
 
 exports.checkLoginUserData = catchAsync(async (req, res, next) => {
     checkBody(req.body)
-
+    
     const {error, value} = userValidator.loginUserDataValidator(req.body)
     if (error) validatorError(value, error);
-
+    
     req.body = value;
+    
+    next();
+});
+
+exports.verify = catchAsync(async (req, res, next) => {
+    const {email} = req.body
+    const user = await User.findOne({email})
+
+    if (user.verify !== true) throw new AppError(404, 'Non authorize')
 
     next();
 });
@@ -66,6 +76,20 @@ exports.checkAvatar = catchAsync(async (req, res, next) => {
     if (error) throw new AppError(400, `${error.message}`);
 
     req.body = value;
+
+    next();
 });
+
+exports.checkEmail = catchAsync(async (req, res, next) => {
+    checkBody(req.body);
+
+    const {error, value} = userValidator.emailValidator(req.body);
+
+    if (error) throw new AppError (400, `${error.message}`);
+
+    req.body = value;
+
+    next();
+})
 
 exports.uploadUserAvatar = ImageService.initUploadMiddleware('avatar');

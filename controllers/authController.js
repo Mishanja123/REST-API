@@ -1,26 +1,46 @@
 const { catchAsync } = require('../utils');
-const { createUser, loginUser, updateSubscription, updateAvatar } = require('../services/userService');
+const { createUser, loginUser, updateSubscription, updateAvatar, verifyUser, secondVerify } = require('../services/userService');
 const {addToBlacklist} = require('../services/jwtService');
 
 
 exports.register = catchAsync(async (req, res) => {
     const { user } = await createUser(req.body);
+
     res.status(201).json({
         user
      })
 });
 
-exports.login = catchAsync(async (req, res) => {
-    const { user, token } = await loginUser(req.body);
-    const {email, subscription} = user
+exports.verify = catchAsync(async (req, res) => {
+  const { verificationToken } = req.params;
 
-    res.status(200).json({
-        token,
-        user: {
-          email,
-          subscription
-        }
-    })
+   await verifyUser(verificationToken)
+
+  res.status(200).json({ 
+    message: 'Verification successful' 
+  });
+});
+
+exports.secondEmail = catchAsync(async (req, res) => {
+  const { email } = req.body;
+
+  await secondVerify(email)
+
+  res.status(200).json({ message: 'Verification email sent' });
+});
+
+
+exports.login = catchAsync(async (req, res) => {
+  const { user, token } = await loginUser(req.body);
+  const {email, subscription} = user
+
+  res.status(200).json({
+    token,
+    user: {
+      email,
+      subscription
+    }
+  })
 });
 
 exports.logout = catchAsync(async (req, res) => {
@@ -34,11 +54,11 @@ addToBlacklist(token)
 exports.getMe = (req, res) => {
   const {email, subscription} = req.user;
 
-    res.status(200).json ({
-        email,
-        subscription
-    })
-  };
+  res.status(200).json ({
+      email,
+      subscription
+  })
+};
 
 exports.updateSubscription = catchAsync(async (req, res) => {
   const updatedUser = await updateSubscription(req.user, req.body);

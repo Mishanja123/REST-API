@@ -40,3 +40,13 @@ exports.updateAvatarValidator = (data) =>
             avatar: Joi.string()
         })
         .validate(data);
+
+
+exports.emailValidator = (data) => 
+    Joi 
+        .object()
+        .options({ abortEarly: false })
+        .keys({
+            email: Joi.string().email().required(),
+        })
+        .validate(data);
